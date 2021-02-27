@@ -1,8 +1,22 @@
-import flask
-from flask import request, jsonify
+from flask import Flask, request, jsonify
+from flask_mail import Mail, Message
+import os
 
-app = flask.Flask(__name__)
+mail = Mail()
+
+app = Flask(__name__)
 app.config["DEBUG"] = True
+
+#Email flask_mail config default
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_DEFAULT_SENDER'] = str(os.environ.get("FLASK_EMAIL_USERNAME"))
+app.config['MAIL_USERNAME'] = str(os.environ.get("FLASK_EMAIL_USERNAME"))
+app.config['MAIL_PASSWORD'] = str(os.environ.get("FLASK_EMAIL_PASSWORD"))
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+
+mail.init_app(app)
 
 # Create some test data for our catalog in the form of a list of dictionaries.
 books = [
@@ -42,12 +56,34 @@ def mesages():
     if request.method == 'POST':
         email = request.form['email']
         message = request.form['message']
+        name = request.form['name']
 
-        if email and message:
-            messages.append({
-                'email': email,
-                'message': message
-            })
+
+        if email and message and name:
+            # messages.append({
+            #     'email': email,
+            #     'message': message
+            # })
+
+            email_header = 'Form Web Ichlasul Amal Github 0899 - ' + str(name)
+
+            #Kirim Email Juga
+            msg = Message(
+                email_header,
+                recipients=["ichlasul0899@gmail.com"],
+                body=message)
+
+            try:
+                mail.send(msg)
+            except NameError:
+                print(NameError)
+            finally:
+                print("The 'try except' is finished")
+
+
+            # print(email_header)
+            # print(str(os.environ.get("FLASK_EMAIL_USERNAME")))
+            # print(str(os.environ.get("FLASK_EMAIL_PASSWORD")))
 
             return jsonify({'ok': True, 'message': 'Message created succesfully!'}), 200
         else:
@@ -60,4 +96,3 @@ def mesages():
             return jsonify({'ok': True, 'message': 'Data message is empty broh!'}), 200
 
 app.run()
-

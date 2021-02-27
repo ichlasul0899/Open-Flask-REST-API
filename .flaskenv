@@ -1,0 +1,2 @@
+FLASK_EMAIL_USERNAME=ivsproduction2017@gmail.com
+FLASK_EMAIL_PASSWORD='WrongPss'
